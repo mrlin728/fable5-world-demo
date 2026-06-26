@@ -1,5 +1,5 @@
 /**
- * Diagnostics HUD. DEFAULT: a minimal FPS chip only — the full debug panel
+ * Diagnostics HUD. DEFAULT: hidden — the full debug panel
  * (per-pass GPU timings, counters, providers) toggles with F3 (?hud=1 boots
  * with it open for tooling shots). Subsystems contribute line providers;
  * re-renders at 4 Hz from current EngineStats. Floor checks (triangle counts
@@ -34,7 +34,7 @@ export class Hud {
     ].join(';');
     document.body.appendChild(this.el);
 
-    // always-on minimal readout — just fps (F3 swaps in the full panel)
+    // Legacy FPS readout is kept for tooling, but hidden in the branded shell.
     this.fpsEl = document.createElement('div');
     this.fpsEl.id = 'hud-fps';
     this.fpsEl.style.cssText = [
@@ -66,7 +66,7 @@ export class Hud {
 
   private applyVisibility(): void {
     this.el.style.display = this.visible ? 'block' : 'none';
-    this.fpsEl.style.display = this.visible ? 'none' : 'block';
+    this.fpsEl.style.display = 'none';
   }
 
   addProvider(p: HudProvider): void {
@@ -78,7 +78,7 @@ export class Hud {
     const c = this.engine.camera.position;
     const fmt = (n: number): string => n.toLocaleString('en-US');
     const lines: string[] = [
-      `LAAS  seed=${this.params.seed} scene=${this.params.scene} T=${this.params.timeOfDay}`,
+      `OpenVZ World Lab  seed=${this.params.seed} scene=${this.params.scene} T=${this.params.timeOfDay} preset=${this.params.preset}`,
       `${s.fps.toFixed(0)} fps  ${s.frameMs.toFixed(2)} ms (p95 ${s.frameMsP95.toFixed(2)})`,
       `draws ${fmt(s.drawCalls)}  tris ${fmt(s.triangles)}`,
       `gpu render ${s.gpuPasses['render']?.toFixed(2) ?? '–'} ms  compute ${s.gpuPasses['compute']?.toFixed(2) ?? '–'} ms`,

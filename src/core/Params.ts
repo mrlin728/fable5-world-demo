@@ -9,7 +9,7 @@ export interface LaasParams {
   scene: string;
   /** time of day, hours 0..24 */
   timeOfDay: number;
-  /** quality preset: low (iGPU floor), high (default), ultra (max grids) */
+  /** quality preset: low (stable default), high, ultra */
   preset: QualityPreset;
   /** HUD visible at boot */
   hud: boolean;
@@ -31,7 +31,7 @@ function num(v: string | null, fallback: number): number {
 
 export function parseParams(search: string = window.location.search): LaasParams {
   const q = new URLSearchParams(search);
-  const presetRaw = q.get('preset') ?? 'high';
+  const presetRaw = q.get('preset') ?? 'low';
   const preset: QualityPreset =
     presetRaw === 'low' || presetRaw === 'ultra' ? presetRaw : 'high';
   const shotN = num(q.get('shot'), 0);

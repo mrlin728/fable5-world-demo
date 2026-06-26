@@ -1,4 +1,4 @@
-/** LAAS entry point — boot sequence with fail-loud diagnostics. */
+/** OpenVZ World Lab entry point — branded shell plus LAAS/WebGPU world boot. */
 
 import { BootUI } from './core/BootUI';
 import { browserGate } from './core/BrowserGate';
@@ -19,13 +19,21 @@ import { buildSanityScene } from './debug/SanityScene';
 import { buildShadowTestScene } from './debug/ShadowTestScene';
 import { buildTerrainScene } from './debug/TerrainScene';
 import { buildScene, registerScene, type WorldContext } from './debug/Scenes';
+import { createWorldLabShell, WorldLabOverlay, type LaunchOptions } from './ui/WorldLabApp';
+import './ui/worldLab.css';
 
-async function boot(): Promise<void> {
+let bootStarted = false;
+
+async function boot(options: LaunchOptions): Promise<void> {
+  if (bootStarted) return;
+  bootStarted = true;
+  document.body.classList.remove('app-ready');
+  document.body.classList.add('app-booting');
   const hooks = initHooks();
   installGlobalErrorHooks();
   // environment gate BEFORE any loading: mobile / non-Chromium / missing
   // WebGPU each get a clear notice instead of a broken boot (?nogate=1 skips)
-  if (!browserGate()) return;
+  if (!options.force && !browserGate()) return;
   const params = parseParams();
   const bootUI = new BootUI(hooks);
 
@@ -33,13 +41,12 @@ async function boot(): Promise<void> {
   const diag = await probeWebGPU();
   hooks.diag = diag;
   if (!diag.ok) {
-    failLoud('WebGPU unavailable — LAAS has no fallback by design', [
+    failLoud('OpenVZ World Lab could not start WebGPU', [
       diag.reason ?? 'unknown reason',
       '',
-      'Chrome exposes WebGPU here, but no usable GPU adapter came up. Check:',
-      '  • chrome://gpu — WebGPU should read “Hardware accelerated”',
-      '  • Settings → System → hardware acceleration ON, then relaunch',
-      '  • update Chrome and the GPU driver',
+      'Please try the latest desktop Chrome.',
+      'Check chrome://gpu — WebGPU should read “Hardware accelerated”.',
+      'Settings → System → hardware acceleration must be ON, then relaunch Chrome.',
     ]);
     return;
   }
@@ -98,14 +105,21 @@ async function boot(): Promise<void> {
   };
 
   engine.start();
+  new WorldLabOverlay(engine, params, hooks);
   await engine.settle(6);
   bootUI.hide();
   hooks.ready = true;
+  document.body.classList.remove('app-booting');
+  document.body.classList.add('app-ready');
   // eslint-disable-next-line no-console
   console.log('[laas] ready');
 }
 
-boot().catch((e: unknown) => {
-  const msg = e instanceof Error ? `${e.message}\n\n${e.stack ?? ''}` : String(e);
-  failLoud('Boot failed', [msg]);
+createWorldLabShell({
+  launch: (options) =>
+    boot(options).catch((e: unknown) => {
+      const msg = e instanceof Error ? `${e.message}\n\n${e.stack ?? ''}` : String(e);
+      failLoud('OpenVZ World Lab boot failed', [msg]);
+      throw e;
+    }),
 });
