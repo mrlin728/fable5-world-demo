@@ -138,14 +138,30 @@ const copy = {
 type Copy = (typeof copy)[Lang];
 
 function currentLanguage(): Lang {
-  const stored = localStorage.getItem(STORAGE_LANG);
+  const stored = storageGet(STORAGE_LANG);
   if (stored === 'en' || stored === 'zh') return stored;
   return /^zh/i.test(navigator.language) ? 'zh' : 'en';
 }
 
 function setLanguage(lang: Lang): void {
-  localStorage.setItem(STORAGE_LANG, lang);
+  storageSet(STORAGE_LANG, lang);
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+}
+
+function storageGet(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function storageSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Some embedded mobile browsers can block storage. UI state still updates in memory.
+  }
 }
 
 function runtimeSupport(): RuntimeSupport {
@@ -368,6 +384,7 @@ export function createWorldLabShell(options: ShellOptions): void {
       el.addEventListener('click', () => {
         lang = el.dataset.lang === 'zh' ? 'zh' : 'en';
         setLanguage(lang);
+        support = runtimeSupport();
         if (support.mobile || !support.chromium || !support.webgpu) {
           if (forcedHome) renderLanding();
           else renderFallback();
@@ -613,7 +630,7 @@ export class WorldLabOverlay {
   }
 
   private save(): void {
-    localStorage.setItem(STORAGE_PROGRESS, JSON.stringify(this.progress));
+    storageSet(STORAGE_PROGRESS, JSON.stringify(this.progress));
   }
 }
 
@@ -679,7 +696,7 @@ function emptyProgress(): ProgressState {
 
 function loadProgress(): ProgressState {
   try {
-    const raw = localStorage.getItem(STORAGE_PROGRESS);
+    const raw = storageGet(STORAGE_PROGRESS);
     if (!raw) return emptyProgress();
     return { ...emptyProgress(), ...JSON.parse(raw) } as ProgressState;
   } catch {

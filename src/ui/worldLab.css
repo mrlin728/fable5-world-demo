@@ -15,6 +15,12 @@
   --vz-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 button,
 input,
 select {
@@ -24,6 +30,8 @@ select {
 .vz-shell {
   position: fixed;
   inset: 0;
+  width: 100%;
+  max-width: 100vw;
   z-index: 60;
   overflow: hidden;
   color: var(--vz-text);
@@ -46,6 +54,11 @@ body.openvz-page-scroll {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+}
+
+.vz-shell-scroll .vz-fallback {
+  width: 100%;
+  max-width: 100%;
 }
 
 .vz-shell::before {
@@ -72,6 +85,10 @@ body.openvz-page-scroll {
   pointer-events: none;
 }
 
+.vz-shell-scroll::before {
+  display: none;
+}
+
 .vz-shell[hidden],
 .vz-hidden {
   display: none !important;
@@ -90,6 +107,7 @@ body.openvz-page-scroll {
 .vz-topbar {
   position: fixed;
   inset: 22px 24px auto 24px;
+  z-index: 12;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -342,6 +360,8 @@ body.openvz-page-scroll {
 
 .vz-fallback-card {
   width: min(980px, 100%);
+  max-width: 100%;
+  margin-inline: auto;
   padding: clamp(24px, 5vw, 56px);
 }
 
@@ -582,7 +602,30 @@ body.openvz-page-scroll {
 
 @media (max-width: 860px) {
   .vz-topbar {
-    inset: calc(18px + env(safe-area-inset-top)) 20px auto 20px;
+    inset: calc(18px + env(safe-area-inset-top)) 16px auto 16px;
+    max-width: calc(100vw - 32px);
+    gap: 10px;
+  }
+
+  .vz-brand-mini {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .vz-brand-mini span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vz-lang {
+    flex: 0 0 auto;
+  }
+
+  .vz-lang button {
+    min-width: 56px;
+    padding-inline: 10px;
   }
 
   .vz-landing {
@@ -595,10 +638,11 @@ body.openvz-page-scroll {
   .vz-fallback {
     display: block;
     min-height: 100dvh;
-    padding: calc(104px + env(safe-area-inset-top)) 20px calc(112px + env(safe-area-inset-bottom));
+    padding: calc(104px + env(safe-area-inset-top)) 16px calc(112px + env(safe-area-inset-bottom));
   }
 
   .vz-fallback-card {
+    width: 100%;
     padding: 20px;
   }
 
