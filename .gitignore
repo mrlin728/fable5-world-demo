@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.DS_Store
+.cache/
+test-results/
+shots/*
+!shots/phase-*
+!shots/phase-*/**
+*.log
+.claude/
