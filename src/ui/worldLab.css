@@ -33,6 +33,21 @@ select {
     linear-gradient(135deg, #020303 0%, #07100f 46%, #020304 100%);
 }
 
+html.openvz-page-scroll,
+body.openvz-page-scroll {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.vz-shell-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
 .vz-shell::before {
   content: "";
   position: absolute;
@@ -306,10 +321,10 @@ select {
 }
 
 .vz-fallback {
-  min-height: 100%;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 92px 24px 34px;
+  padding: 92px 24px calc(96px + env(safe-area-inset-bottom));
 }
 
 .vz-fallback-card,
@@ -566,10 +581,36 @@ select {
 }
 
 @media (max-width: 860px) {
+  .vz-topbar {
+    inset: calc(18px + env(safe-area-inset-top)) 20px auto 20px;
+  }
+
   .vz-landing {
     display: block;
-    padding: 94px 20px 84px;
+    min-height: 100dvh;
+    padding: calc(94px + env(safe-area-inset-top)) 20px calc(96px + env(safe-area-inset-bottom));
     overflow: auto;
+  }
+
+  .vz-fallback {
+    display: block;
+    min-height: 100dvh;
+    padding: calc(104px + env(safe-area-inset-top)) 20px calc(112px + env(safe-area-inset-bottom));
+  }
+
+  .vz-fallback-card {
+    padding: 20px;
+  }
+
+  .vz-fallback-card h1 {
+    font-size: clamp(28px, 7.5vw, 38px);
+    line-height: 1.14;
+    letter-spacing: -0.04em;
+  }
+
+  .vz-description {
+    font-size: 14px;
+    line-height: 1.65;
   }
 
   .vz-visual {

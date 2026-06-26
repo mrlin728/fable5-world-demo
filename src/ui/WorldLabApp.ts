@@ -94,7 +94,7 @@ const copy = {
     fallbackTitle: 'OpenVZ World Lab 需要桌面版 Chrome 和 WebGPU 支持。',
     fallbackBody:
       '手机、Safari 和 Firefox 可能无法运行完整实时世界。你可以先查看预览，也可以在确认浏览器支持 WebGPU 时强制打开。',
-    openAnyway: '仍然打开',
+    openAnyway: '强制打开',
     backHome: '返回首页',
     tryDesktop: '尝试桌面版',
     learnMore: '了解更多',
@@ -188,6 +188,11 @@ export function createWorldLabShell(options: ShellOptions): void {
   document.body.appendChild(root);
 
   const t = () => copy[lang];
+  const setShellMode = (mode: 'landing' | 'fallback' | 'hidden'): void => {
+    root.classList.toggle('vz-shell-scroll', mode === 'fallback');
+    document.documentElement.classList.toggle('openvz-page-scroll', mode === 'fallback');
+    document.body.classList.toggle('openvz-page-scroll', mode === 'fallback');
+  };
 
   const applyLaunchParams = (): void => {
     const url = new URL(window.location.href);
@@ -200,9 +205,11 @@ export function createWorldLabShell(options: ShellOptions): void {
 
   const launch = (force = false): void => {
     applyLaunchParams();
+    setShellMode('hidden');
     root.hidden = true;
     void options.launch({ force }).catch((err: unknown) => {
       root.hidden = false;
+      setShellMode('fallback');
       showToast(t().loadingError);
       const message = err instanceof Error ? err.message : String(err);
       // eslint-disable-next-line no-console
@@ -225,6 +232,7 @@ export function createWorldLabShell(options: ShellOptions): void {
   `;
 
   const renderLanding = (): void => {
+    setShellMode('landing');
     const c = t();
     root.innerHTML = `
       ${renderTop()}
@@ -291,6 +299,7 @@ export function createWorldLabShell(options: ShellOptions): void {
   };
 
   const renderFallback = (): void => {
+    setShellMode('fallback');
     const c = t();
     root.innerHTML = `
       ${renderTop()}
