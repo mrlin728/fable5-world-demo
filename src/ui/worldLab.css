@@ -1,18 +1,95 @@
+/* OPENVZ World Lab — shell styling.
+ *
+ * The shell (landing gate, browser fallback, in-world HUD, modals, toasts) is
+ * the only part of this app a designer touches: everything below it is a GPU
+ * pipeline. So this file carries the whole brand, and it carries the *same*
+ * brand as www.openvzai.com — neo-brutalist, warm newsprint, 3px ink rules,
+ * hard offset shadows, zero radius, zero blur.
+ *
+ * Tokens below are copied verbatim from the site's tailwind.config.ts rather
+ * than imported: this is a separate Vite app on its own domain and pulling in
+ * Tailwind to read six colours would be a build system for a palette. If the
+ * site's palette moves, move it here too — that is the one manual link.
+ *
+ * The 3D world stays dark. It is a forest at dawn; making it paper-coloured
+ * would mean deleting the product. What matches the site is everything drawn
+ * *over* the canvas: paper cards, ink borders, Anton headlines, mono buttons.
+ * High contrast against the world is the point, not an accident.
+ */
+
 :root {
-  color-scheme: dark;
-  --vz-bg: #030607;
-  --vz-panel: rgba(8, 18, 18, 0.68);
-  --vz-panel-strong: rgba(8, 22, 22, 0.88);
-  --vz-line: rgba(155, 255, 225, 0.18);
-  --vz-line-strong: rgba(155, 255, 225, 0.36);
-  --vz-text: #eafff8;
-  --vz-muted: #95bdb3;
-  --vz-dim: #638178;
-  --vz-accent: #5ff0bd;
-  --vz-blue: #68d8ff;
-  --vz-warn: #ffd083;
-  --vz-danger: #ff8f9c;
-  --vz-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+  /* The world needs a dark UA surface (scrollbars, form controls) but the
+     landing is paper. Declaring both lets each surface pick, instead of the
+     landing inheriting dark scrollbars over a light page. */
+  color-scheme: light dark;
+
+  --vz-paper: #f3eee0;
+  --vz-ink: #0a0a0a;
+  --vz-cobalt: #2a2aff;
+  --vz-flame: #ff4a17;
+  --vz-lime: #c7f63e;
+  --vz-pink: #ff66b3;
+  --vz-violet: #7c4dff;
+
+  /* Ink at reduced weight, for secondary copy on paper. Kept as flat alpha so
+     it stays correct on both paper and lime/pink accent fills. */
+  --vz-muted: #0a0a0aa8;
+  --vz-dim: #0a0a0a70;
+  --vz-rule: #0a0a0a;
+
+  --vz-shadow: 6px 6px 0 0 #0a0a0a;
+  --vz-shadow-lg: 10px 10px 0 0 #0a0a0a;
+  --vz-shadow-sm: 4px 4px 0 0 #0a0a0a;
+
+  --vz-display: 'Anton', 'Arial Narrow', Impact, sans-serif;
+  --vz-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --vz-mono: 'Space Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Self-hosted, same six faces as the site. No Google Fonts request — this app
+   is also served to mainland China, where that request is the slow one.
+   Chinese copy falls through to the system CJK face on purpose. */
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/anton-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/grotesk-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/grotesk-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/grotesk-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/mono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/mono-700.woff2') format('woff2');
 }
 
 *,
@@ -27,6 +104,10 @@ select {
   font: inherit;
 }
 
+/* ------------------------------------------------------------- the shell --
+   Covers the viewport before the world starts, and again if the world fails
+   to start. This is the surface that has to read as openvzai.com. */
+
 .vz-shell {
   position: fixed;
   inset: 0;
@@ -34,11 +115,9 @@ select {
   max-width: 100vw;
   z-index: 60;
   overflow: hidden;
-  color: var(--vz-text);
-  background:
-    radial-gradient(circle at 74% 24%, rgba(104, 216, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 22% 22%, rgba(95, 240, 189, 0.14), transparent 25%),
-    linear-gradient(135deg, #020303 0%, #07100f 46%, #020304 100%);
+  color: var(--vz-ink);
+  background: var(--vz-paper);
+  font-family: var(--vz-sans);
 }
 
 html.openvz-page-scroll,
@@ -47,6 +126,7 @@ body.openvz-page-scroll {
   min-height: 100%;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  background: var(--vz-paper);
 }
 
 .vz-shell-scroll {
@@ -61,32 +141,16 @@ body.openvz-page-scroll {
   max-width: 100%;
 }
 
+/* The site's dotted newsprint texture, same dot and same 22px pitch. Replaces
+   the perspective grid and the two teal glows the dark shell used — brutalism
+   does not do atmospheric depth. */
 .vz-shell::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  background:
-    linear-gradient(rgba(116, 255, 219, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(116, 255, 219, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-  transform: perspective(900px) rotateX(62deg) translateY(18%);
-  transform-origin: 50% 70%;
-  mask-image: linear-gradient(to bottom, transparent, #000 28%, transparent 78%);
-  pointer-events: none;
-}
-
-.vz-shell::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(110deg, rgba(3, 6, 7, 0.2), rgba(3, 6, 7, 0.74) 58%),
-    radial-gradient(ellipse at 54% 70%, rgba(95, 240, 189, 0.09), transparent 40%);
+  background-image: radial-gradient(#0a0a0a14 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
   pointer-events: none;
-}
-
-.vz-shell-scroll::before {
-  display: none;
 }
 
 .vz-shell[hidden],
@@ -104,54 +168,77 @@ body.openvz-page-scroll {
   z-index: 2;
 }
 
-.vz-topbar {
-  position: fixed;
-  inset: 22px 24px auto 24px;
-  z-index: 12;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  pointer-events: none;
+/* Paper scrollbar, matching the site's. Only reachable in fallback mode, which
+   is the one shell state that scrolls. */
+.vz-shell-scroll::-webkit-scrollbar {
+  width: 14px;
+}
+.vz-shell-scroll::-webkit-scrollbar-track {
+  background: var(--vz-paper);
+  border-left: 3px solid var(--vz-ink);
+}
+.vz-shell-scroll::-webkit-scrollbar-thumb {
+  background: var(--vz-ink);
+  border: 3px solid var(--vz-paper);
 }
 
+::selection {
+  background: var(--vz-cobalt);
+  color: var(--vz-paper);
+}
+
+/* ------------------------------------------------------------- top bar --- */
+
+.vz-topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 12;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0;
+  pointer-events: none;
+  border-bottom: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+}
+
+/* The site wears its wordmark as a solid cobalt plate in the header's left
+   corner. Same move here. */
 .vz-brand-mini {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--vz-text);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  padding: 14px 22px;
+  background: var(--vz-cobalt);
+  color: var(--vz-paper);
+  border-right: 3px solid var(--vz-ink);
+  font-family: var(--vz-display);
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .vz-mark {
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--vz-line-strong);
-  border-radius: 8px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
-  background: rgba(95, 240, 189, 0.09);
-  box-shadow: 0 0 28px rgba(95, 240, 189, 0.18);
+  background: var(--vz-paper);
+  border: 3px solid var(--vz-ink);
 }
 
 .vz-mark::before {
-  content: "";
-  width: 14px;
-  height: 14px;
+  content: '';
+  width: 10px;
+  height: 10px;
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  background: linear-gradient(180deg, var(--vz-accent), var(--vz-blue));
+  background: var(--vz-ink);
 }
 
 .vz-lang {
   pointer-events: auto;
   display: flex;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--vz-line);
-  border-radius: 999px;
-  background: rgba(3, 8, 8, 0.58);
-  backdrop-filter: blur(18px);
+  align-self: stretch;
 }
 
 .vz-lang button,
@@ -159,23 +246,29 @@ body.openvz-page-scroll {
 .vz-button,
 .vz-icon-button {
   border: 0;
-  color: var(--vz-text);
+  color: var(--vz-ink);
   cursor: pointer;
+  font-family: var(--vz-mono);
 }
 
 .vz-lang button {
-  min-width: 62px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--vz-muted);
+  min-width: 76px;
+  padding: 0 18px;
+  background: var(--vz-paper);
+  color: var(--vz-ink);
+  border-left: 3px solid var(--vz-ink);
   font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
-.vz-lang button[aria-pressed="true"] {
-  color: #04100d;
-  background: linear-gradient(135deg, var(--vz-accent), var(--vz-blue));
+.vz-lang button[aria-pressed='true'] {
+  background: var(--vz-ink);
+  color: var(--vz-paper);
 }
+
+/* ------------------------------------------------------------- landing --- */
 
 .vz-landing {
   min-height: 100%;
@@ -183,7 +276,7 @@ body.openvz-page-scroll {
   grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.72fr);
   align-items: center;
   gap: clamp(28px, 6vw, 86px);
-  padding: 88px clamp(24px, 7vw, 104px) 40px;
+  padding: 118px clamp(24px, 7vw, 104px) 64px;
 }
 
 .vz-kicker,
@@ -195,20 +288,28 @@ body.openvz-page-scroll {
   color: var(--vz-muted);
 }
 
+/* Anton, set as tight and as large as the site's hero. The dark shell ran
+   -0.075em tracking on a geometric sans; Anton is already condensed, so it
+   only wants a hair. */
 .vz-hero h1 {
   margin: 0;
-  max-width: 780px;
-  font-size: clamp(48px, 9vw, 112px);
-  line-height: 0.9;
-  letter-spacing: -0.075em;
+  max-width: 900px;
+  font-family: var(--vz-display);
+  font-size: clamp(52px, 10vw, 128px);
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--vz-ink);
 }
 
 .vz-subtitle {
-  margin: 24px 0 0;
-  color: #d8fff4;
-  font-size: clamp(18px, 2.2vw, 28px);
+  margin: 26px 0 0;
+  max-width: 640px;
+  color: var(--vz-ink);
+  font-size: clamp(18px, 2.2vw, 26px);
+  font-weight: 500;
   line-height: 1.25;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
 }
 
 .vz-description {
@@ -222,110 +323,163 @@ body.openvz-page-scroll {
 .vz-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 34px;
 }
 
+/* .brut-btn, transcribed. Hover lifts into the shadow, active presses into it
+   and the shadow goes — the site's exact three-state gesture. */
 .vz-button {
-  min-height: 42px;
-  padding: 0 16px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: none;
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  box-shadow: var(--vz-shadow-sm);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition:
+    transform 100ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .vz-button:hover {
-  transform: translateY(-1px);
-  border-color: var(--vz-line-strong);
-  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--vz-shadow);
+}
+
+.vz-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.vz-button:focus-visible {
+  outline: 4px solid var(--vz-cobalt);
+  outline-offset: 3px;
 }
 
 .vz-button-primary {
-  color: #03110d;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--vz-accent), var(--vz-blue));
-  border-color: transparent;
-  box-shadow: 0 18px 48px rgba(95, 240, 189, 0.22);
+  background: var(--vz-cobalt);
+  color: var(--vz-paper);
 }
 
+/* Ultra is the "your GPU may not survive this" preset. Flame, same as the
+   site uses for its loudest callouts. */
 .vz-button-warn {
-  color: #160e03;
-  background: linear-gradient(135deg, #ffd083, #ffad6b);
-  border-color: transparent;
+  background: var(--vz-flame);
+  color: var(--vz-paper);
+}
+
+/* The selected quality preset. Lime reads as "armed" without competing with
+   cobalt's primary action. */
+.vz-chip-active {
+  background: var(--vz-lime);
+  color: var(--vz-ink);
 }
 
 .vz-note {
-  margin-top: 18px;
-  font-size: 13px;
+  margin-top: 22px;
+  font-family: var(--vz-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
+
+.vz-fine {
+  font-family: var(--vz-mono);
+  font-size: 12px;
+}
+
+/* ------------------------------------------------- landing visual panel ---
+   A schematic of the world, not a screenshot. Kept because it fills the right
+   column before any GPU work has happened; restyled from frosted glass to a
+   hard paper card so it sits in the same family as the site's .brut cards. */
 
 .vz-visual {
   min-height: 520px;
-  border: 1px solid var(--vz-line);
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 48% 18%, rgba(95, 240, 189, 0.24), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-  box-shadow: var(--vz-shadow);
-  backdrop-filter: blur(22px);
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  box-shadow: var(--vz-shadow-lg);
   overflow: hidden;
   position: relative;
 }
 
+/* A true circle, sized in px and centred with a negative margin rather than a
+   transform — the spin animation owns `transform`, so centring with one would
+   be overwritten the moment the animation starts. `inset` here would give an
+   ellipse, since the card is much taller than the column is wide. */
 .vz-orbit {
   position: absolute;
-  inset: 44px;
+  top: 44px;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  margin-left: -100px;
   border-radius: 50%;
-  border: 1px solid rgba(104, 216, 255, 0.18);
+  border: 3px solid var(--vz-ink);
   animation: vzSpin 18s linear infinite;
 }
 
 .vz-orbit::before,
 .vz-orbit::after {
-  content: "";
+  content: '';
   position: absolute;
-  border-radius: 50%;
-  background: var(--vz-accent);
-  box-shadow: 0 0 24px var(--vz-accent);
+  border: 3px solid var(--vz-ink);
 }
 
 .vz-orbit::before {
-  width: 9px;
-  height: 9px;
+  width: 16px;
+  height: 16px;
   top: 12%;
   left: 18%;
+  background: var(--vz-pink);
 }
 
 .vz-orbit::after {
-  width: 6px;
-  height: 6px;
+  width: 12px;
+  height: 12px;
   right: 16%;
   bottom: 22%;
-  background: var(--vz-blue);
+  background: var(--vz-lime);
 }
 
+/* The terrain silhouette. Flat cobalt instead of the glow-and-gradient
+   version. Parked in the band *above* the stat panel: anchored to the card
+   floor it read as a fill leaking out from behind the panel's corners rather
+   than as a drawing. Offsets are px because the panel below it is px too. */
 .vz-landform {
   position: absolute;
-  left: 7%;
-  right: 7%;
-  bottom: 14%;
-  height: 45%;
-  background:
-    linear-gradient(160deg, transparent 12%, rgba(95, 240, 189, 0.28) 12.5%, transparent 13%),
-    linear-gradient(18deg, rgba(104, 216, 255, 0.08), rgba(95, 240, 189, 0.18));
-  clip-path: polygon(0 82%, 10% 66%, 22% 71%, 34% 42%, 46% 58%, 58% 25%, 70% 52%, 83% 35%, 100% 64%, 100% 100%, 0 100%);
-  filter: drop-shadow(0 0 36px rgba(95, 240, 189, 0.22));
+  left: 0;
+  right: 0;
+  bottom: 152px;
+  height: 132px;
+  background: var(--vz-cobalt);
+  clip-path: polygon(
+    0 82%,
+    10% 66%,
+    22% 71%,
+    34% 42%,
+    46% 58%,
+    58% 25%,
+    70% 52%,
+    83% 35%,
+    100% 64%,
+    100% 100%,
+    0 100%
+  );
 }
 
 .vz-visual-panel {
   position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: 24px;
+  left: 22px;
+  right: 22px;
+  bottom: 22px;
   display: grid;
-  gap: 10px;
+  gap: 0;
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  box-shadow: var(--vz-shadow-sm);
 }
 
 .vz-stat-row {
@@ -333,29 +487,35 @@ body.openvz-page-scroll {
   justify-content: space-between;
   gap: 14px;
   padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.24);
+  border-bottom: 3px solid var(--vz-ink);
+  font-family: var(--vz-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
+
+.vz-stat-row:last-child {
+  border-bottom: 0;
+}
+
+.vz-stat-row strong {
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------ fallback --- */
 
 .vz-fallback {
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 92px 24px calc(96px + env(safe-area-inset-bottom));
+  padding: 122px 24px calc(96px + env(safe-area-inset-bottom));
 }
 
 .vz-fallback-card,
-.vz-modal-card,
-.vz-objectives,
-.vz-dev-panel,
-.vz-photo-bar,
-.vz-settings {
-  border: 1px solid var(--vz-line);
-  border-radius: 8px;
-  background: var(--vz-panel);
-  box-shadow: var(--vz-shadow);
-  backdrop-filter: blur(22px);
+.vz-modal-card {
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  box-shadow: var(--vz-shadow-lg);
 }
 
 .vz-fallback-card {
@@ -368,38 +528,74 @@ body.openvz-page-scroll {
 .vz-fallback-card h1,
 .vz-modal-card h2 {
   margin: 0;
-  font-size: clamp(30px, 5vw, 58px);
-  letter-spacing: -0.055em;
+  font-family: var(--vz-display);
+  font-size: clamp(30px, 5vw, 56px);
+  line-height: 0.94;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: var(--vz-ink);
 }
 
 .vz-preview-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin: 28px 0;
+  gap: 14px;
+  margin: 30px 0;
 }
 
 .vz-preview-card {
   min-height: 122px;
   padding: 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    radial-gradient(circle at 82% 18%, rgba(95, 240, 189, 0.2), transparent 30%);
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  box-shadow: var(--vz-shadow-sm);
 }
 
 .vz-preview-card strong {
   display: block;
   margin-bottom: 8px;
+  font-family: var(--vz-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
+
+/* The site staggers accent colours across a grid rather than painting a whole
+   band one colour. Four cards, four accents, same rotation order. */
+.vz-preview-card:nth-child(1) {
+  background: var(--vz-lime);
+}
+.vz-preview-card:nth-child(2) {
+  background: var(--vz-pink);
+}
+.vz-preview-card:nth-child(3) {
+  background: var(--vz-cobalt);
+  color: var(--vz-paper);
+}
+.vz-preview-card:nth-child(4) {
+  background: var(--vz-violet);
+  color: var(--vz-paper);
+}
+
+.vz-preview-card:nth-child(3) .vz-fine,
+.vz-preview-card:nth-child(4) .vz-fine {
+  color: #f3eee0c0;
+}
+
+/* ------------------------------------------------------------ world HUD ---
+   Drawn over the live 3D world, so these panels are the one place the brand
+   has to hold against an arbitrary dark image behind it. Opaque paper with an
+   ink rule does that; the frosted panels this replaces did not, they just went
+   muddy over the forest. Kept tight so they cover as little world as possible. */
 
 .vz-world-ui {
   position: fixed;
   inset: 0;
   z-index: 30;
   pointer-events: none;
-  color: var(--vz-text);
+  color: var(--vz-ink);
+  font-family: var(--vz-sans);
 }
 
 .vz-world-ui button {
@@ -417,6 +613,16 @@ body.openvz-page-scroll {
   align-items: flex-start;
 }
 
+/* In-world the wordmark is a compact cobalt plate rather than the full-width
+   header bar — the world is the content, the brand is a stamp on it. */
+.vz-world-top .vz-brand-mini {
+  padding: 8px 14px;
+  border: 3px solid var(--vz-ink);
+  border-right-width: 3px;
+  box-shadow: var(--vz-shadow-sm);
+  font-size: 15px;
+}
+
 .vz-tool-row,
 .vz-segmented {
   display: flex;
@@ -426,18 +632,47 @@ body.openvz-page-scroll {
 
 .vz-chip {
   min-height: 34px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid var(--vz-line);
-  background: rgba(3, 8, 8, 0.62);
-  color: var(--vz-muted);
+  padding: 0 14px;
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  color: var(--vz-ink);
+  box-shadow: var(--vz-shadow-sm);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition:
+    transform 100ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.vz-chip[aria-pressed="true"],
-.vz-chip-active {
-  color: #04110d;
-  background: linear-gradient(135deg, var(--vz-accent), var(--vz-blue));
-  border-color: transparent;
+.vz-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--vz-shadow);
+}
+
+.vz-chip:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.vz-chip:focus-visible {
+  outline: 4px solid var(--vz-cobalt);
+  outline-offset: 3px;
+}
+
+.vz-chip[aria-pressed='true'] {
+  background: var(--vz-lime);
+  color: var(--vz-ink);
+}
+
+.vz-objectives,
+.vz-dev-panel,
+.vz-photo-bar,
+.vz-settings {
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  box-shadow: var(--vz-shadow);
 }
 
 .vz-objectives {
@@ -451,15 +686,18 @@ body.openvz-page-scroll {
 .vz-objectives h2,
 .vz-dev-panel h2 {
   margin: 0 0 10px;
-  font-size: 13px;
-  letter-spacing: 0.08em;
+  font-family: var(--vz-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .vz-objective-list {
   display: grid;
-  gap: 9px;
+  gap: 0;
   margin: 12px 0;
+  border: 3px solid var(--vz-ink);
 }
 
 .vz-objective {
@@ -467,24 +705,36 @@ body.openvz-page-scroll {
   grid-template-columns: 18px 1fr auto;
   gap: 8px;
   align-items: center;
+  padding: 8px 10px;
+  border-bottom: 3px solid var(--vz-ink);
   color: var(--vz-muted);
-  font-size: 12px;
+  font-family: var(--vz-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
+.vz-objective:last-child {
+  border-bottom: 0;
+}
+
+/* A completed objective flips to a solid lime row — legible at a glance from
+   across the viewport, which a colour-shifted text label was not. */
 .vz-objective-done {
-  color: #dfffee;
+  background: var(--vz-lime);
+  color: var(--vz-ink);
+  font-weight: 700;
 }
 
 .vz-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 1px solid var(--vz-line-strong);
+  width: 12px;
+  height: 12px;
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
 }
 
 .vz-objective-done .vz-dot {
-  background: var(--vz-accent);
-  box-shadow: 0 0 16px rgba(95, 240, 189, 0.55);
+  background: var(--vz-cobalt);
 }
 
 .vz-dev-panel {
@@ -493,7 +743,7 @@ body.openvz-page-scroll {
   top: 72px;
   width: min(360px, calc(100vw - 36px));
   padding: 14px;
-  font: 11px/1.55 ui-monospace, "SF Mono", Menlo, monospace;
+  font: 700 11px/1.55 var(--vz-mono);
   white-space: pre-wrap;
 }
 
@@ -508,19 +758,21 @@ body.openvz-page-scroll {
   padding: 8px;
 }
 
+/* Framing guides for photo mode. Ink, because the shot underneath is a
+   landscape and a white rule disappears into the sky. */
 .vz-photo-overlay {
   position: absolute;
   inset: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 3px solid var(--vz-ink);
   pointer-events: none;
 }
 
 .vz-photo-overlay::before,
 .vz-photo-overlay::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 12%;
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  border: 1px solid #0a0a0a80;
 }
 
 .openvz-photo-mode .vz-objectives,
@@ -537,6 +789,8 @@ body.openvz-page-scroll {
   padding: 8px;
 }
 
+/* -------------------------------------------------------------- modals --- */
+
 .vz-modal {
   position: fixed;
   inset: 0;
@@ -544,7 +798,7 @@ body.openvz-page-scroll {
   display: grid;
   place-items: center;
   padding: 22px;
-  background: rgba(0, 0, 0, 0.48);
+  background: #0a0a0ac4;
 }
 
 .vz-modal-card {
@@ -552,46 +806,85 @@ body.openvz-page-scroll {
   max-height: min(780px, 88vh);
   overflow: auto;
   padding: 28px;
+  font-family: var(--vz-sans);
 }
 
 .vz-controls-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin: 22px 0;
+  gap: 0;
+  margin: 24px 0;
+  border: 3px solid var(--vz-ink);
 }
 
 .vz-control {
   padding: 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: rgba(255, 255, 255, 0.045);
+  border-right: 3px solid var(--vz-ink);
+  border-bottom: 3px solid var(--vz-ink);
 }
+
+.vz-control:nth-child(2n) {
+  border-right: 0;
+}
+
+.vz-control:nth-last-child(-n + 2):nth-child(2n + 1),
+.vz-control:last-child {
+  border-bottom: 0;
+}
+
+.vz-control strong {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--vz-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.vz-control .vz-fine {
+  margin: 0;
+  color: var(--vz-muted);
+}
+
+/* --------------------------------------------------------------- toast --- */
 
 .vz-toast {
   position: fixed;
   left: 50%;
   bottom: 92px;
   transform: translateX(-50%);
-  padding: 10px 14px;
-  border: 1px solid var(--vz-line);
-  border-radius: 8px;
-  background: var(--vz-panel-strong);
-  color: var(--vz-text);
+  padding: 12px 18px;
+  border: 3px solid var(--vz-ink);
+  background: var(--vz-lime);
+  color: var(--vz-ink);
   box-shadow: var(--vz-shadow);
+  font-family: var(--vz-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   z-index: 120;
 }
 
+/* -------------------------------------------------------------- footer --- */
+
 .vz-footer {
   position: fixed;
-  left: 24px;
-  right: 24px;
-  bottom: 18px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 2;
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 12px;
+  padding: 12px clamp(24px, 7vw, 104px);
+  border-top: 3px solid var(--vz-ink);
+  background: var(--vz-paper);
+  font-family: var(--vz-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 @keyframes vzSpin {
@@ -602,14 +895,17 @@ body.openvz-page-scroll {
 
 @media (max-width: 860px) {
   .vz-topbar {
-    inset: calc(18px + env(safe-area-inset-top)) 16px auto 16px;
-    max-width: calc(100vw - 32px);
-    gap: 10px;
+    inset: 0 0 auto 0;
+    max-width: 100vw;
+    gap: 0;
+    padding-top: env(safe-area-inset-top);
   }
 
   .vz-brand-mini {
     min-width: 0;
     gap: 8px;
+    padding: 12px 14px;
+    font-size: 16px;
   }
 
   .vz-brand-mini span:last-child {
@@ -624,21 +920,21 @@ body.openvz-page-scroll {
   }
 
   .vz-lang button {
-    min-width: 56px;
-    padding-inline: 10px;
+    min-width: 60px;
+    padding-inline: 12px;
   }
 
   .vz-landing {
     display: block;
     min-height: 100dvh;
-    padding: calc(94px + env(safe-area-inset-top)) 20px calc(96px + env(safe-area-inset-bottom));
+    padding: calc(96px + env(safe-area-inset-top)) 20px calc(96px + env(safe-area-inset-bottom));
     overflow: auto;
   }
 
   .vz-fallback {
     display: block;
     min-height: 100dvh;
-    padding: calc(104px + env(safe-area-inset-top)) 16px calc(112px + env(safe-area-inset-bottom));
+    padding: calc(106px + env(safe-area-inset-top)) 16px calc(112px + env(safe-area-inset-bottom));
   }
 
   .vz-fallback-card {
@@ -646,10 +942,19 @@ body.openvz-page-scroll {
     padding: 20px;
   }
 
+  /* This heading is a full sentence, not a headline, and in Chinese it sets as
+     Anton latin against the system CJK face. Those two have very different
+     vertical metrics, so the display line-height that suits a two-word hero
+     runs the CJK glyphs into each other here. */
   .vz-fallback-card h1 {
-    font-size: clamp(28px, 7.5vw, 38px);
-    line-height: 1.14;
-    letter-spacing: -0.04em;
+    font-size: clamp(28px, 8.5vw, 40px);
+    line-height: 1.18;
+  }
+
+  /* One column, so a card is as wide as the viewport — the min-height that
+     stops a four-up grid from collapsing just adds dead space. */
+  .vz-preview-card {
+    min-height: 0;
   }
 
   .vz-description {
@@ -665,6 +970,17 @@ body.openvz-page-scroll {
   .vz-preview-grid,
   .vz-controls-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* One column: every cell's right border is the grid's own edge, and only
+     the last cell drops its bottom rule. */
+  .vz-control {
+    border-right: 0;
+    border-bottom: 3px solid var(--vz-ink);
+  }
+
+  .vz-control:last-child {
+    border-bottom: 0;
   }
 
   .vz-world-top {
@@ -685,5 +1001,10 @@ body.openvz-page-scroll {
 @media (prefers-reduced-motion: reduce) {
   .vz-orbit {
     animation: none;
+  }
+
+  .vz-button,
+  .vz-chip {
+    transition: none;
   }
 }

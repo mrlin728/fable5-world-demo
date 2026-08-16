@@ -66,7 +66,12 @@ const copy = {
     saved: 'Photo saved.',
     photoFailed: 'Screenshot unavailable, view link copied instead.',
     loadingError: 'Your browser could not start the 3D world. Please try the latest desktop Chrome.',
-    previewCards: ['Procedural Terrain', 'Dynamic Atmosphere', 'Real-time Exploration', 'Browser-native 3D'],
+    previewCards: [
+      ['Procedural Terrain', 'Heightfield, erosion and river networks solved on the GPU.'],
+      ['Dynamic Atmosphere', 'Volumetric cloud layers and a time of day you can scrub.'],
+      ['Real-time Exploration', 'Walk or fly. No level streaming, no loading screens.'],
+      ['Browser-native 3D', 'WebGPU only — no plugin, no install, no server.'],
+    ],
     controlsList: [
       ['Move', 'W A S D'],
       ['Look', 'Click the world, then move mouse'],
@@ -121,7 +126,12 @@ const copy = {
     saved: '截图已保存。',
     photoFailed: '截图不可用，已复制视角链接。',
     loadingError: '你的浏览器无法启动 3D 世界。请尝试最新版桌面 Chrome。',
-    previewCards: ['程序化地形', '动态天空', '实时探索', '浏览器原生 3D'],
+    previewCards: [
+      ['程序化地形', '高程、侵蚀与河网全部在 GPU 上求解。'],
+      ['动态天空', '体积云层与可以随手推移的时间。'],
+      ['实时探索', '步行或飞行。没有分块加载，没有载入画面。'],
+      ['浏览器原生 3D', '只需 WebGPU —— 无插件、无安装、无服务器。'],
+    ],
     controlsList: [
       ['移动', 'W A S D'],
       ['视角', '点击世界后移动鼠标'],
@@ -349,7 +359,12 @@ export function createWorldLabShell(options: ShellOptions): void {
 
   const renderPreviewCards = (): string => `
     <div class="vz-preview-grid">
-      ${t().previewCards.map((name) => `<article class="vz-preview-card"><strong>${name}</strong><span class="vz-fine">${t().subtitle}</span></article>`).join('')}
+      ${t()
+        .previewCards.map(
+          ([name, body]) =>
+            `<article class="vz-preview-card"><strong>${name}</strong><span class="vz-fine">${body}</span></article>`,
+        )
+        .join('')}
     </div>
   `;
 
