@@ -10,7 +10,6 @@
       ]
     },
     {
-      "comment": "Brand faces are content-stable and requested on the first paint of the boot screen, so they get the same immutable year as the hashed bundle. Without this they fall to Vercel's default and are revalidated on every visit — the one blocking request before anything is legible.",
       "source": "/fonts/(.*)",
       "headers": [
         {
