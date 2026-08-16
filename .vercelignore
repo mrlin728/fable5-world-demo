@@ -1,0 +1,18 @@
+# The Vercel CLI does not apply .gitignore, so everything the build does not
+# need has to be listed again here or it gets uploaded. Without this the
+# deployment carries node_modules and, on a full (non-sparse) checkout, the
+# 172 MB of QA screenshots — neither of which the browser ever sees.
+node_modules/
+dist/
+.cache/
+test-results/
+
+# QA evidence and the comparison baselines tools/compare.ts judges against.
+# Tracked in git on purpose (docs cite them); never part of a deployment.
+shots/
+reference/
+
+.DS_Store
+*.log
+.claude/
+.git/
