@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "shoot": "tsx tools/shoot.ts",
     "compare": "tsx tools/compare.ts",
-    "battery": "tsx tools/battery.ts"
+    "battery": "tsx tools/battery.ts",
+    "deploy": "vercel --prod --yes --archive=tgz",
+    "deploy:preview": "vercel --yes --archive=tgz"
   },
   "dependencies": {
     "three": "0.184.0"
